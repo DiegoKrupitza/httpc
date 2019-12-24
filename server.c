@@ -250,6 +250,13 @@ void clientWaiting(int serverFd)
         int clientFd = accept(serverFd, NULL, NULL);
         if (clientFd < 0)
         {
+            if (errno == EINTR)
+            {
+                //TODO: check if it is really a sigchild
+                // maybe a SIGCHILD is incomming
+                // so catch it
+                continue;
+            }
             // error
             fprintf(stderr, "./%s: Error accepting new client: %s\n", PROGRAMNAME, strerror(errno));
             exit(EXIT_FAILURE);

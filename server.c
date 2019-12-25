@@ -200,31 +200,32 @@ int startServer(serverarguments *args)
     return sockfd;
 }
 
-char* readClientReqest(int clientFd, char* requestContent) {
-    FILE* clientInput = fdopen(clientFd,"r");
-    
+char *readClientReqest(int clientFd, char *requestContent)
+{
+    FILE *clientInput = fdopen(clientFd, "r");
+
     //TODO: find a way its not blocking
     char line[1024];
-    while((fgets(line,sizeof(line),clientInput)) != 0) {
+    while ((fgets(line, sizeof(line), clientInput)) != 0)
+    {
         int newLength = strlen(line) + strlen(requestContent) + 2;
-        requestContent = realloc(requestContent,newLength);
-        strcat(requestContent,line);
+        requestContent = realloc(requestContent, newLength);
+        strcat(requestContent, line);
     }
-    
+
     //fgets(requestContent,sizeof(requestContent),clientInput);
-    
+
     fclose(clientInput);
     return requestContent;
 }
 
-void processClientRequest(int clientFd) {
-    char* requestContent = calloc(1024,sizeof(char));
+void processClientRequest(int clientFd)
+{
+    char *requestContent = calloc(1024, sizeof(char));
 
-    requestContent = readClientReqest(clientFd,requestContent);
-    printf("%s",requestContent);
+    requestContent = readClientReqest(clientFd, requestContent);
+    printf("%s", requestContent);
     fflush(stdout);
-
-
 }
 
 /**

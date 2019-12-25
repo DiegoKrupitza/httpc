@@ -26,7 +26,7 @@ void handle_childfork(int singal)
     if (WEXITSTATUS(status) == EXIT_SUCCESS)
     {
         //everything was ok
-        fprintf(stdout, "Client exit ok!\n");
+        debug("Client exit ok!");
     }
     else
     {
@@ -200,6 +200,33 @@ int startServer(serverarguments *args)
     return sockfd;
 }
 
+char* readClientReqest(int clientFd, char* requestContent) {
+    FILE* clientInput = fdopen(clientFd,"r");
+    
+    //TODO: find a way its not blocking
+    char line[1024];
+    while((fgets(line,sizeof(line),clientInput)) != 0) {
+        int newLength = strlen(line) + strlen(requestContent) + 2;
+        requestContent = realloc(requestContent,newLength);
+        strcat(requestContent,line);
+    }
+    
+    //fgets(requestContent,sizeof(requestContent),clientInput);
+    
+    fclose(clientInput);
+    return requestContent;
+}
+
+void processClientRequest(int clientFd) {
+    char* requestContent = calloc(1024,sizeof(char));
+
+    requestContent = readClientReqest(clientFd,requestContent);
+    printf("%s",requestContent);
+    fflush(stdout);
+
+
+}
+
 /**
  * @brief Handles the incoming request of a client
  * 
@@ -207,19 +234,6 @@ int startServer(serverarguments *args)
  */
 void handleNewClient(int clientFd)
 {
-    /*FILE *client = fdopen(clientFd, "r");
-
-     char *line = NULL;
-    size_t linecap = 0;
-    ssize_t linelen;
-    while ((linelen = getline(&line, &linecap, client)) > 0)
-    {
-        fwrite(line, linelen, 1, stdout);
-        fflush(stdout);
-    } 
-
-    fclose(client);*/
-
     pid_t pid = fork();
     switch (pid)
     {
@@ -228,6 +242,7 @@ void handleNewClient(int clientFd)
         exit(EXIT_FAILURE);
     case 0:
         // child tasks ...
+        processClientRequest(clientFd);
         exit(EXIT_SUCCESS);
         break;
     default:
@@ -246,7 +261,6 @@ void clientWaiting(int serverFd)
 {
     while (1)
     {
-        debug("In request\n");
         int clientFd = accept(serverFd, NULL, NULL);
         if (clientFd < 0)
         {

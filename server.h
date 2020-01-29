@@ -10,7 +10,7 @@
 typedef struct
 {
     char *port;
-} serverarguments;
+} serverarguments_t;
 
 void usage(void);
 

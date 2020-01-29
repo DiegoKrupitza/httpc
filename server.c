@@ -11,6 +11,8 @@
 #include <sys/wait.h>
 
 #include "server.h"
+#include "httpHeaderManager.h"
+#include "httpStatusCodes.h"
 
 void handle_childfork(int singal)
 {
@@ -107,7 +109,7 @@ int validPort(char *port)
  * @param argv the argument vector
  * @param args the container holding the arguments for further processing
  */
-void readArguments(int argc, char *argv[], serverarguments *args)
+void readArguments(int argc, char *argv[], serverarguments_t *args)
 {
     int portFlag = 0;
     int ch = -1;
@@ -152,7 +154,7 @@ void readArguments(int argc, char *argv[], serverarguments *args)
  * @param args the arguments of this programm
  * @return int the servers filedescriptor
  */
-int startServer(serverarguments *args)
+int startServer(serverarguments_t *args)
 {
     struct addrinfo hints, *ai;
     memset(&hints, 0, sizeof hints);
@@ -204,27 +206,40 @@ char *readClientReqest(int clientFd, char *requestContent)
 {
     FILE *clientInput = fdopen(clientFd, "r");
 
-    //TODO: find a way its not blocking
     char line[1024];
     while ((fgets(line, sizeof(line), clientInput)) != 0)
     {
         int newLength = strlen(line) + strlen(requestContent) + 2;
         requestContent = realloc(requestContent, newLength);
         strcat(requestContent, line);
+        if (strcmp("\r\n", line) == 0)
+        {
+            //done
+            break;
+        }
     }
-
-    //fgets(requestContent,sizeof(requestContent),clientInput);
 
     fclose(clientInput);
     return requestContent;
 }
 
+void parseHttpHeader(httpheader_t *parseHttpHeader)
+{
+    //TODO: implement header parsing
+}
+
 void processClientRequest(int clientFd)
 {
     char *requestContent = calloc(1024, sizeof(char));
-
     requestContent = readClientReqest(clientFd, requestContent);
-    printf("%s", requestContent);
+
+    httpheader_t httpheader = {.methode = "GET", .statuscode = 200};
+    parseHttpHeader(&httpheader);
+
+    char *httpHeaderAsString = calloc(2, sizeof(char));
+    responseheaderToString(httpheader, httpHeaderAsString);
+
+    //printf("%s", requestContent);
     fflush(stdout);
 }
 
@@ -249,6 +264,7 @@ void handleNewClient(int clientFd)
     default:
         // parent tasks ...
         // nothing to do
+        // handle in sigaction
         break;
     }
 }
@@ -284,7 +300,7 @@ void clientWaiting(int serverFd)
 int main(int argc, char *argv[])
 {
     signalRegistry();
-    serverarguments args = {
+    serverarguments_t args = {
         .port = DEFAULTPORT};
 
     readArguments(argc, argv, &args);

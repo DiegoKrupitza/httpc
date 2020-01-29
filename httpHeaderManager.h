@@ -1,5 +1,7 @@
 #include "httpStatusCodes.h"
 
+#define HTTPHEADER_DELIMITER "\r\n"
+
 typedef struct
 {
     char *methode;
@@ -16,4 +18,4 @@ typedef struct
     int statuscode;
 } httpheader_t;
 
-void responseheaderToString(httpheader_t header, char *headerString);
+void responseheaderToString(httpheader_t *header, char *headerString);

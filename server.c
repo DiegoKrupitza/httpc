@@ -223,22 +223,6 @@ char *readClientReqest(int clientFd, char *requestContent)
     return requestContent;
 }
 
-void parseHttpHeader(char *requestContent, httpheader_t *parseHttpHeader)
-{
-    //TODO: implement header parsing
-    printf("%s", requestContent);
-
-    char *ptr;
-    ptr = strtok(requestContent, HTTPHEADER_DELIMITER);
-
-    while (ptr != NULL)
-    {
-        printf("%s\n", ptr);
-        // naechsten Abschnitt erstellen
-        ptr = strtok(NULL, HTTPHEADER_DELIMITER);
-    }
-}
-
 void processClientRequest(int clientFd)
 {
     // reading the content
@@ -255,6 +239,12 @@ void processClientRequest(int clientFd)
     responseheaderToString(&responseHttpheader, httpHeaderAsString);
 
     // write response
+    FILE *cl = fdopen(clientFd, "w");
+    fputs(httpHeaderAsString, cl);
+    fflush(cl);
+    fclose(cl);
+
+    //TODO correct writing back
 
     fflush(stdout);
 }

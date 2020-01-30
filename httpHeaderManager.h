@@ -2,6 +2,11 @@
 
 #define HTTPHEADER_DELIMITER "\r\n"
 
+#define HTTPHEADER_KEY_HOST "Host:"
+#define HTTPHEADER_KEY_CONNECTION "Connection:"
+#define HTTPHEADER_KEY_USER_AGENT "User-Agent:"
+#define HTTPHEADER_KEY_ENCODING "Accept-Encoding:"
+
 typedef struct
 {
     char *methode;
@@ -19,3 +24,5 @@ typedef struct
 } httpheader_t;
 
 void responseheaderToString(httpheader_t *header, char *headerString);
+
+void parseHttpHeader(char *requestContent, httpheader_t *parseHttpHeader);

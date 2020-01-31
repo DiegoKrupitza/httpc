@@ -218,8 +218,6 @@ char *readClientReqest(int clientFd, char *requestContent)
             break;
         }
     }
-
-    fclose(clientInput);
     return requestContent;
 }
 
@@ -230,22 +228,33 @@ void processClientRequest(int clientFd)
     requestContent = readClientReqest(clientFd, requestContent);
 
     // parsing the header and storing into the header struct
-    httpheader_t requestHttpheader = {.methode = "GET", .statuscode = 200};
+    httpheader_t requestHttpheader;
     parseHttpHeader(requestContent, &requestHttpheader);
 
     // generating the resposne header
-    httpheader_t responseHttpheader;
+    httpheader_t responseHttpheader = {.methode = "GET", .statuscode = 200};
     char *httpHeaderAsString = calloc(2, sizeof(char));
-    responseheaderToString(&responseHttpheader, httpHeaderAsString);
+    httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
+
+    //printf("%s", httpHeaderAsString);
 
     // write response
     FILE *cl = fdopen(clientFd, "w");
     fputs(httpHeaderAsString, cl);
-    fflush(cl);
-    fclose(cl);
+    if (fflush(cl) != 0)
+    {
+        //error
+        fprintf(stderr, "Error flushing to client!\n");
+    }
+    if (fclose(cl) != 0)
+    {
+        //error
+        fprintf(stderr, "Error closing connection to client!\n");
+    }
 
     //TODO correct writing back
-
+    free(httpHeaderAsString);
+    free(requestContent);
     fflush(stdout);
 }
 

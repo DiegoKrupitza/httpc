@@ -19,7 +19,7 @@ char *getGMTTime()
     return currentGmtTime;
 }
 
-void responseheaderToString(httpheader_t *header, char *headerString)
+char *responseheaderToString(httpheader_t *header, char *headerString)
 {
     // status code is not longer than 3 digits
     char statuscode[4];
@@ -51,8 +51,11 @@ void responseheaderToString(httpheader_t *header, char *headerString)
     headerString = realloc(headerString, length);
 
     sprintf(headerString, "%s %s %s\r\n", header->methode, statuscode, statusText);
-    sprintf(headerString, "Date: %s GMT\r\n", gmtTime);
+    sprintf(headerString, "%sDate: %s GMT\r\n", headerString, gmtTime);
+
+    sprintf(headerString, "%s\r\n", headerString);
     //TODO: implement
+    return headerString;
 }
 
 void processFirstLine(char *firstLine, httpheader_t *parseHttpHeader)

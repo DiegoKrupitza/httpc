@@ -23,6 +23,6 @@ typedef struct
     int statuscode;
 } httpheader_t;
 
-void responseheaderToString(httpheader_t *header, char *headerString);
+char *responseheaderToString(httpheader_t *header, char *headerString);
 
 void parseHttpHeader(char *requestContent, httpheader_t *parseHttpHeader);

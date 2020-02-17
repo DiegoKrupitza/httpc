@@ -1,7 +1,7 @@
 CC = gcc
 DEFS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_SVID_SOURCE -D_POSIX_C_SOURCE=200809L
   
-CFLAGS = -Wall -Wgnu-zero-variadic-macro-arguments -Wno-unused-function -g -std=c99 -pedantic $(DEFS)
+CFLAGS = -Wall -Wno-unused-function -g -std=c99 -pedantic $(DEFS)
 SERVEROBJECTS = server.o httpHeaderManager.o permissions.o
 .PHONY: all clean
 

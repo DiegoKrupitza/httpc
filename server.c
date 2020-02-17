@@ -261,7 +261,7 @@ void processClientRequest(int clientFd)
     if(permissionStatus == PERMISSION_DENIED) {
         //TODO: send permission denied message to client
         debug("Client tried to access a file which the current running user has no read permission!");
-        sendFileNoPermissionMessage(clientFd);
+        sendNoPermissionMessage(clientFd);
         free(requestContent);
         return;
     }else if (permissionStatus == FILE_NOT_EXISTS) {

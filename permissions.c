@@ -29,7 +29,7 @@ void sendFileNotExistsMessage(int clientFd) {
     free(httpHeaderAsString);
 }
 
-void sendFileNoPermissionMessage(int clientFd) {
+void sendNoPermissionMessage(int clientFd) {
     httpheader_t responseHttpheader = {.statuscode = 403, .httpVersion = "HTTP/1.1", .server = "httpc"};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);

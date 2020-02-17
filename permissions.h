@@ -28,6 +28,16 @@ typedef enum {
  */
 permission_t checkFileForPermissionAndExistence(httpheader_t* requestHeader);
 
+/**
+ * @brief Sends the File not exists error message to the client
+ * 
+ * @param clientFd the clients file descriptor
+ */
 void sendFileNotExistsMessage(int clientFd);
 
-void sendFileNoPermissionMessage(int clientFd);
+/**
+ * @brief Sends the no permission error message to the client
+ * 
+ * @param clientFd the clients file descriptor
+ */
+void sendNoPermissionMessage(int clientFd);

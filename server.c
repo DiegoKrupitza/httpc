@@ -11,8 +11,17 @@
 #include <sys/wait.h>
 
 #include "server.h"
+
+#ifndef COMMON_HEADERS
+#define COMMON_HEADERS
+
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
+#include "permissions.h"
+
+#endif
+
+#define PATH_MAX 4096
 
 void handle_childfork(int singal)
 {
@@ -237,12 +246,36 @@ void processClientRequest(int clientFd)
     httpheader_t requestHttpheader;
     parseHttpHeader(requestContent, &requestHttpheader);
 
+    //fixing the relative path to the absolute
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        strcat(cwd,requestHttpheader.file);
+        requestHttpheader.file = cwd;
+    } else {
+        fprintf(stderr,"getcwd() error");
+        exit(EXIT_FAILURE);
+    }
+
+    // check if file exists and if the current running user has permission to access the file
+    permission_t permissionStatus = checkFileForPermissionAndExistence(&requestHttpheader);
+    if(permissionStatus == PERMISSION_DENIED) {
+        //TODO: send permission denied message to client
+        debug("Client tried to access a file which the current running user has no read permission!");
+        sendFileNoPermissionMessage(clientFd);
+        free(requestContent);
+        return;
+    }else if (permissionStatus == FILE_NOT_EXISTS) {
+        //TODO: send FILE not exists message to client
+        debug("Client tried to access a file which does not exist!");
+        sendFileNotExistsMessage(clientFd);
+        free(requestContent);
+        return;
+    }
+
     // generating the resposne header
-    httpheader_t responseHttpheader = {.statuscode = 200, .httpVersion = "HTTP/1.1"};
+    httpheader_t responseHttpheader = {.statuscode = 200, .httpVersion = "HTTP/1.1", .server = "httpc"};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
-
-    //printf("%s", httpHeaderAsString);
 
     // write response
     FILE *cl = fdopen(clientFd, "w");
@@ -259,7 +292,6 @@ void processClientRequest(int clientFd)
         fprintf(stderr, "Error closing connection to client!\n");
     }
 
-    //TODO correct writing back
     free(httpHeaderAsString);
     free(requestContent);
     fflush(stdout);

@@ -20,6 +20,7 @@ typedef struct
     char *content_type;
     char *date;
     char *last_modified;
+    char *server;
     int statuscode;
 } httpheader_t;
 

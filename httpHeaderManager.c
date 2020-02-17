@@ -4,8 +4,14 @@
 #include <strings.h>
 #include <time.h>
 
+#ifndef COMMON_HEADERS
+#define COMMON_HEADERS
+
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
+#include "permissions.h"
+
+#endif
 
 char *getGMTTime()
 {
@@ -42,6 +48,7 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
                  sizeof(header->content_type) +
                  sizeof(header->date) +
                  sizeof(header->last_modified) +
+                 sizeof(header->server) +
                  sizeof(statuscode) +
                  sizeof(statusText) +
                  sizeof(gmtTime) +
@@ -50,11 +57,32 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
 
     headerString = realloc(headerString, length);
 
+    if(header->httpVersion == NULL) {
+        fprintf(stderr,"Error you forgot to set the httpVersion in the header!\n");
+        exit(EXIT_FAILURE);
+    }
+
     sprintf(headerString, "%s %s %s\r\n", header->httpVersion, statuscode, statusText);
     sprintf(headerString, "%sDate: %s GMT\r\n", headerString, gmtTime);
 
+    if(header->connection != NULL) {
+        sprintf(headerString, "%sConnection: %s\r\n", headerString, header->connection);
+    }
+    if(header->server != NULL) {
+    sprintf(headerString, "%sServer: %s\r\n", headerString, header->server);
+    }
+    if(header->content_type != NULL) {
+        sprintf(headerString, "%sContent-Type: %s\r\n", headerString, header->content_type);
+    }
+    if(header->content_length != NULL) {
+        sprintf(headerString, "%sContent-Length: %s\r\n", headerString, header->content_length);
+    }
+    if(header->last_modified != NULL) {
+        sprintf(headerString, "%sLast-Modified: %s\r\n", headerString, header->last_modified);
+    }
+
     sprintf(headerString, "%s\r\n", headerString);
-    //TODO: implement
+
     return headerString;
 }
 

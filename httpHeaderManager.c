@@ -50,7 +50,7 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
 
     headerString = realloc(headerString, length);
 
-    sprintf(headerString, "%s %s %s\r\n", header->methode, statuscode, statusText);
+    sprintf(headerString, "%s %s %s\r\n", header->httpVersion, statuscode, statusText);
     sprintf(headerString, "%sDate: %s GMT\r\n", headerString, gmtTime);
 
     sprintf(headerString, "%s\r\n", headerString);

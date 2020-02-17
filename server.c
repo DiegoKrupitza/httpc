@@ -238,7 +238,7 @@ void processClientRequest(int clientFd)
     parseHttpHeader(requestContent, &requestHttpheader);
 
     // generating the resposne header
-    httpheader_t responseHttpheader = {.methode = "GET", .statuscode = 200};
+    httpheader_t responseHttpheader = {.statuscode = 200, .httpVersion = "HTTP/1.1"};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
 

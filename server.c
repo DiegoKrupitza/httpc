@@ -223,6 +223,12 @@ char *readClientReqest(int clientFd, char *requestContent)
 
 void processClientRequest(int clientFd)
 {
+    // duplicate fd so its safe to close
+    int duplicatedClientSocket = dup(clientFd);
+    close(clientFd);
+
+    clientFd = duplicatedClientSocket;
+
     // reading the content
     char *requestContent = calloc(1024, sizeof(char));
     requestContent = readClientReqest(clientFd, requestContent);
@@ -241,6 +247,7 @@ void processClientRequest(int clientFd)
     // write response
     FILE *cl = fdopen(clientFd, "w");
     fputs(httpHeaderAsString, cl);
+    fputs("It works!\n", cl);
     if (fflush(cl) != 0)
     {
         //error
@@ -266,6 +273,7 @@ void processClientRequest(int clientFd)
 void handleNewClient(int clientFd)
 {
     pid_t pid = fork();
+
     switch (pid)
     {
     case -1:
@@ -280,6 +288,7 @@ void handleNewClient(int clientFd)
         // parent tasks ...
         // nothing to do
         // handle in sigaction
+        close(clientFd);
         break;
     }
 }

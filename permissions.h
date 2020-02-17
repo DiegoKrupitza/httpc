@@ -14,7 +14,8 @@
 #define FILE_NOT_FOUND_MESSAGE "<html><body><h1>404 - File not found!</h1></body></html>\n"
 #define FILE_NO_PERMISSION_MESSAGE "<html><body><h1>403 - Permission denied!</h1></body></html>\n"
 
-typedef enum {
+typedef enum
+{
     FILE_EXISTS,
     FILE_NOT_EXISTS,
     PERMISSION_DENIED,
@@ -26,7 +27,7 @@ typedef enum {
  * @param requestHeader the requestheader struct containing the filename
  * @return permission_t the permission status of the given file
  */
-permission_t checkFileForPermissionAndExistence(httpheader_t* requestHeader);
+permission_t checkFileForPermissionAndExistence(httpheader_t *requestHeader);
 
 /**
  * @brief Sends the File not exists error message to the client

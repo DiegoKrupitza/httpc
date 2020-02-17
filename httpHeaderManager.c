@@ -57,27 +57,33 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
 
     headerString = realloc(headerString, length);
 
-    if(header->httpVersion == NULL) {
-        fprintf(stderr,"Error you forgot to set the httpVersion in the header!\n");
+    if (header->httpVersion == NULL)
+    {
+        fprintf(stderr, "Error you forgot to set the httpVersion in the header!\n");
         exit(EXIT_FAILURE);
     }
 
     sprintf(headerString, "%s %s %s\r\n", header->httpVersion, statuscode, statusText);
     sprintf(headerString, "%sDate: %s GMT\r\n", headerString, gmtTime);
 
-    if(header->connection != NULL) {
+    if (header->connection != NULL)
+    {
         sprintf(headerString, "%sConnection: %s\r\n", headerString, header->connection);
     }
-    if(header->server != NULL) {
-    sprintf(headerString, "%sServer: %s\r\n", headerString, header->server);
+    if (header->server != NULL)
+    {
+        sprintf(headerString, "%sServer: %s\r\n", headerString, header->server);
     }
-    if(header->content_type != NULL) {
+    if (header->content_type != NULL)
+    {
         sprintf(headerString, "%sContent-Type: %s\r\n", headerString, header->content_type);
     }
-    if(header->content_length != NULL) {
+    if (header->content_length != NULL)
+    {
         sprintf(headerString, "%sContent-Length: %s\r\n", headerString, header->content_length);
     }
-    if(header->last_modified != NULL) {
+    if (header->last_modified != NULL)
+    {
         sprintf(headerString, "%sLast-Modified: %s\r\n", headerString, header->last_modified);
     }
 

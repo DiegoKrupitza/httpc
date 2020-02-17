@@ -248,23 +248,29 @@ void processClientRequest(int clientFd)
 
     //fixing the relative path to the absolute
     char cwd[PATH_MAX];
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        strcat(cwd,requestHttpheader.file);
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        strcat(cwd, requestHttpheader.file);
         requestHttpheader.file = cwd;
-    } else {
-        fprintf(stderr,"getcwd() error");
+    }
+    else
+    {
+        fprintf(stderr, "getcwd() error");
         exit(EXIT_FAILURE);
     }
 
     // check if file exists and if the current running user has permission to access the file
     permission_t permissionStatus = checkFileForPermissionAndExistence(&requestHttpheader);
-    if(permissionStatus == PERMISSION_DENIED) {
+    if (permissionStatus == PERMISSION_DENIED)
+    {
         //TODO: send permission denied message to client
         debug("Client tried to access a file which the current running user has no read permission!");
         sendNoPermissionMessage(clientFd);
         free(requestContent);
         return;
-    }else if (permissionStatus == FILE_NOT_EXISTS) {
+    }
+    else if (permissionStatus == FILE_NOT_EXISTS)
+    {
         //TODO: send FILE not exists message to client
         debug("Client tried to access a file which does not exist!");
         sendFileNotExistsMessage(clientFd);

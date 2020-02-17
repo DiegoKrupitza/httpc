@@ -7,11 +7,11 @@
 
 #endif
 
-void sendFileNotExistsMessage(int clientFd) {
+void sendFileNotExistsMessage(int clientFd)
+{
     httpheader_t responseHttpheader = {.statuscode = 404, .httpVersion = "HTTP/1.1", .server = "httpc"};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
-
 
     FILE *cl = fdopen(clientFd, "w");
     fputs(httpHeaderAsString, cl);
@@ -29,11 +29,11 @@ void sendFileNotExistsMessage(int clientFd) {
     free(httpHeaderAsString);
 }
 
-void sendNoPermissionMessage(int clientFd) {
+void sendNoPermissionMessage(int clientFd)
+{
     httpheader_t responseHttpheader = {.statuscode = 403, .httpVersion = "HTTP/1.1", .server = "httpc"};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
-
 
     FILE *cl = fdopen(clientFd, "w");
     fputs(httpHeaderAsString, cl);
@@ -51,14 +51,19 @@ void sendNoPermissionMessage(int clientFd) {
     free(httpHeaderAsString);
 }
 
-permission_t checkFileForPermissionAndExistence(httpheader_t* requestHeader) {
-    if( access( requestHeader->file, F_OK) != -1 ) {
+permission_t checkFileForPermissionAndExistence(httpheader_t *requestHeader)
+{
+    if (access(requestHeader->file, F_OK) != -1)
+    {
         // file exists
-        if( access( requestHeader->file, R_OK) != -1 ) {
+        if (access(requestHeader->file, R_OK) != -1)
+        {
             // permission ok
             return FILE_EXISTS;
         }
-    } else {
+    }
+    else
+    {
         // file doesn't exist
         return FILE_NOT_EXISTS;
     }

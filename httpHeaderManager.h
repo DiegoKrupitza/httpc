@@ -27,3 +27,5 @@ typedef struct
 char *responseheaderToString(httpheader_t *header, char *headerString);
 
 void parseHttpHeader(char *requestContent, httpheader_t *parseHttpHeader);
+
+httpheader_t getDefaultResponseHeader();

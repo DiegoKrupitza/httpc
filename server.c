@@ -6,8 +6,10 @@
 #include <inttypes.h>
 #include <string.h>
 #include <netdb.h>
+#include <time.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 
 #include "server.h"
@@ -230,7 +232,7 @@ char *readClientReqest(int clientFd, char *requestContent)
     return requestContent;
 }
 
-int readFileContent(char *filename, char *fileContent)
+char *readFileContent(char *filename, char *fileContent, int *fileSize)
 {
     size_t fileLength = -1;
     FILE *fp = fopen(filename, "r");
@@ -238,6 +240,7 @@ int readFileContent(char *filename, char *fileContent)
     // seking the file end and read the size
     fseek(fp, 0L, SEEK_END);
     fileLength = ftell(fp);
+    *fileSize = fileLength;
 
     rewind(fp);
 
@@ -251,7 +254,7 @@ int readFileContent(char *filename, char *fileContent)
         strcat(fileContent, line);
     }
 
-    return fileLength;
+    return fileContent;
 }
 
 void processClientRequest(int clientFd)
@@ -287,7 +290,7 @@ void processClientRequest(int clientFd)
     permission_t permissionStatus = checkFileForPermissionAndExistence(&requestHttpheader);
     if (permissionStatus == PERMISSION_DENIED)
     {
-        //TODO: send permission denied message to client
+        //send permission denied message to client
         debug("Client tried to access a file which the current running user has no read permission!");
         sendNoPermissionMessage(clientFd);
         free(requestContent);
@@ -295,18 +298,31 @@ void processClientRequest(int clientFd)
     }
     else if (permissionStatus == FILE_NOT_EXISTS)
     {
-        //TODO: send FILE not exists message to client
+        //send FILE not exists message to client
         debug("Client tried to access a file which does not exist!");
         sendFileNotExistsMessage(clientFd);
         free(requestContent);
         return;
     }
 
+    // reading the file content and get the file sizes
     char *fileContent = calloc(2, sizeof(char));
-    int fileSize = readFileContent(requestHttpheader.file, fileContent);
+    int *fileSize = (int *)malloc(sizeof(int));
+    fileContent = readFileContent(requestHttpheader.file, fileContent, fileSize);
+
+    // last modified timestamp
+    char *lastModTime = calloc(50, sizeof(char));
+    struct stat attrib;
+    stat(requestHttpheader.file, &attrib);
+    struct tm *info = gmtime(&attrib.st_mtime);
+    strftime(lastModTime, 50, "%c GMT", info);
 
     // generating the resposne header
-    httpheader_t responseHttpheader = {.statuscode = 200, .httpVersion = "HTTP/1.1", .server = "httpc", .content_length = fileSize};
+    httpheader_t responseHttpheader = getDefaultResponseHeader();
+    responseHttpheader.statuscode = 200;
+    responseHttpheader.content_length = *fileSize;
+    responseHttpheader.last_modified = lastModTime;
+
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
 
@@ -327,6 +343,7 @@ void processClientRequest(int clientFd)
 
     free(httpHeaderAsString);
     free(requestContent);
+    free(fileSize);
     free(fileContent);
     fflush(stdout);
 }

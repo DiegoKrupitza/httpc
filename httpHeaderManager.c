@@ -13,13 +13,18 @@
 
 #endif
 
-char *getGMTTime()
+httpheader_t getDefaultResponseHeader()
+{
+    httpheader_t responseHttpheader = {.httpVersion = "HTTP/1.1", .server = "httpc", .connection = "close"};
+    return responseHttpheader;
+}
+
+char *getCurrentGMTTime()
 {
     time_t rawtime;
     time(&rawtime);
-
-    /* Get GMT time */
     struct tm *info = gmtime(&rawtime);
+    /* Get GMT time */
     char *currentGmtTime = asctime(info);
     currentGmtTime[strlen(currentGmtTime) - 1] = 0;
     return currentGmtTime;
@@ -32,7 +37,7 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
     sprintf(statuscode, "%d", header->statuscode);
 
     // getting the current timestamp
-    char *gmtTime = getGMTTime();
+    char *gmtTime = getCurrentGMTTime();
 
     // getting the reason for a given status code
     const char *statusText = HttpStatus_reasonPhrase(header->statuscode);
@@ -52,7 +57,7 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
                  sizeof(statuscode) +
                  sizeof(statusText) +
                  sizeof(gmtTime) +
-                 5 + // for "GMT"
+                 10 + // for "GMT"
                  2;
 
     headerString = realloc(headerString, length);

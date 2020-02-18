@@ -78,9 +78,9 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
     {
         sprintf(headerString, "%sContent-Type: %s\r\n", headerString, header->content_type);
     }
-    if (header->content_length != NULL)
+    if (header->content_length != -1)
     {
-        sprintf(headerString, "%sContent-Length: %s\r\n", headerString, header->content_length);
+        sprintf(headerString, "%sContent-Length: %d\r\n", headerString, header->content_length);
     }
     if (header->last_modified != NULL)
     {

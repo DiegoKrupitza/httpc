@@ -16,7 +16,7 @@ typedef struct
     char *connection;
     char *user_agent;
     char *accept_encoding;
-    char *content_length;
+    int content_length;
     char *content_type;
     char *date;
     char *last_modified;

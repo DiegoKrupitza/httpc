@@ -230,6 +230,30 @@ char *readClientReqest(int clientFd, char *requestContent)
     return requestContent;
 }
 
+int readFileContent(char *filename, char *fileContent)
+{
+    size_t fileLength = -1;
+    FILE *fp = fopen(filename, "r");
+
+    // seking the file end and read the size
+    fseek(fp, 0L, SEEK_END);
+    fileLength = ftell(fp);
+
+    rewind(fp);
+
+    char *line = NULL;
+    size_t linecap = 0;
+    ssize_t linelen;
+    while ((linelen = getline(&line, &linecap, fp)) > 0)
+    {
+        int newLenght = linelen + strlen(fileContent) + 2;
+        fileContent = realloc(fileContent, newLenght);
+        strcat(fileContent, line);
+    }
+
+    return fileLength;
+}
+
 void processClientRequest(int clientFd)
 {
     // duplicate fd so its safe to close
@@ -278,15 +302,18 @@ void processClientRequest(int clientFd)
         return;
     }
 
+    char *fileContent = calloc(2, sizeof(char));
+    int fileSize = readFileContent(requestHttpheader.file, fileContent);
+
     // generating the resposne header
-    httpheader_t responseHttpheader = {.statuscode = 200, .httpVersion = "HTTP/1.1", .server = "httpc"};
+    httpheader_t responseHttpheader = {.statuscode = 200, .httpVersion = "HTTP/1.1", .server = "httpc", .content_length = fileSize};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
 
     // write response
     FILE *cl = fdopen(clientFd, "w");
     fputs(httpHeaderAsString, cl);
-    fputs("It works!\n", cl);
+    fputs(fileContent, cl);
     if (fflush(cl) != 0)
     {
         //error
@@ -300,6 +327,7 @@ void processClientRequest(int clientFd)
 
     free(httpHeaderAsString);
     free(requestContent);
+    free(fileContent);
     fflush(stdout);
 }
 

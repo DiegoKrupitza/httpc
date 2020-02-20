@@ -232,17 +232,10 @@ char *readClientReqest(int clientFd, char *requestContent)
     return requestContent;
 }
 
-char *readFileContent(char *filename, char *fileContent, int *fileSize)
+char *readFileContent(char *filename, char *fileContent)
 {
-    size_t fileLength = -1;
+    //size_t fileLength = -1;
     FILE *fp = fopen(filename, "r");
-
-    // seking the file end and read the size
-    fseek(fp, 0L, SEEK_END);
-    fileLength = ftell(fp);
-    *fileSize = fileLength;
-
-    rewind(fp);
 
     char *line = NULL;
     size_t linecap = 0;
@@ -305,22 +298,24 @@ void processClientRequest(int clientFd)
         return;
     }
 
+    // file stats
+    struct stat fileInfo;
+    stat(requestHttpheader.file, &fileInfo);
+
     // reading the file content and get the file sizes
     char *fileContent = calloc(2, sizeof(char));
     int *fileSize = (int *)malloc(sizeof(int));
-    fileContent = readFileContent(requestHttpheader.file, fileContent, fileSize);
+    fileContent = readFileContent(requestHttpheader.file, fileContent);
 
     // last modified timestamp
     char *lastModTime = calloc(50, sizeof(char));
-    struct stat attrib;
-    stat(requestHttpheader.file, &attrib);
-    struct tm *info = gmtime(&attrib.st_mtime);
+    struct tm *info = gmtime(&fileInfo.st_mtime);
     strftime(lastModTime, 50, "%c GMT", info);
 
     // generating the resposne header
     httpheader_t responseHttpheader = getDefaultResponseHeader();
     responseHttpheader.statuscode = 200;
-    responseHttpheader.content_length = *fileSize;
+    responseHttpheader.content_length = fileInfo.st_size;
     responseHttpheader.last_modified = lastModTime;
 
     char *httpHeaderAsString = calloc(2, sizeof(char));

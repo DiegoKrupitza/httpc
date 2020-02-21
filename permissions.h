@@ -8,6 +8,7 @@
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
 #include "permissions.h"
+#include "mimeTypeManager.h"
 
 #endif
 
@@ -42,3 +43,12 @@ void sendFileNotExistsMessage(int clientFd);
  * @param clientFd the clients file descriptor
  */
 void sendNoPermissionMessage(int clientFd);
+
+/**
+ * @brief Get the Extension of a file
+ * 
+ * @see https://stackoverflow.com/questions/3035225/getting-file-extension-in-c-language
+ * @param fspec the filename
+ * @return const char* the extension including the point
+ */
+const char *getExt(const char *fspec);

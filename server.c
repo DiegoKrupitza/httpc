@@ -20,6 +20,7 @@
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
 #include "permissions.h"
+#include "mimeTypeManager.h"
 
 #endif
 
@@ -311,6 +312,9 @@ void processClientRequest(int clientFd)
     char *lastModTime = calloc(50, sizeof(char));
     struct tm *info = gmtime(&fileInfo.st_mtime);
     strftime(lastModTime, 50, "%c GMT", info);
+
+    char *mimeType = getMimeTypFromFilename(requestHttpheader.file);
+    printf("%s\n\n", mimeType);
 
     // generating the resposne header
     httpheader_t responseHttpheader = getDefaultResponseHeader();

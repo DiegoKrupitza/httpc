@@ -1,9 +1,13 @@
+#include <string.h>
+
 #ifndef COMMON_HEADERS
 #define COMMON_HEADERS
 
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
 #include "permissions.h"
+#include "mimeTypeManager.h"
+
 
 #endif
 
@@ -69,4 +73,12 @@ permission_t checkFileForPermissionAndExistence(httpheader_t *requestHeader)
     }
 
     return PERMISSION_DENIED;
+}
+
+const char *getExt(const char *fspec)
+{
+    char *e = strrchr(fspec, '.');
+    if (e == NULL)
+        e = ""; // fast method, could also use &(fspec[strlen(fspec)]).
+    return e;
 }

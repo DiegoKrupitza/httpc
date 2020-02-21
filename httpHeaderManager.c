@@ -10,6 +10,7 @@
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
 #include "permissions.h"
+#include "mimeTypeManager.h"
 
 #endif
 

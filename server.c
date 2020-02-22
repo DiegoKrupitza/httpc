@@ -248,6 +248,12 @@ char *readFileContent(char *filename, char *fileContent)
         strcat(fileContent, line);
     }
 
+    if (fclose(fp) < 0)
+    {
+        fprintf(stderr, "Cannot close the file (%s) the client requested!", filename);
+        exit(EXIT_FAILURE);
+    }
+
     return fileContent;
 }
 

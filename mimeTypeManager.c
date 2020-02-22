@@ -34,13 +34,18 @@ char *getMimeTypFromFilename(char *filename)
     // removing the \n
     char *pos;
     if ((pos = strchr(mimeType, '\n')) != NULL)
+    {
         *pos = '\0';
+    }
     else
+    {
         /* input too long for buffer, flag error */
+    }
 
-        if (fclose(mimeTypeFile) < 0)
+    if (fclose(mimeTypeFile) < 0)
     {
         fprintf(stderr, "Cannot close the File (%s) containing the mimetypes!", MIME_TYPE_FILE_LOCATION);
+        exit(EXIT_FAILURE);
     }
 
     return mimeType;

@@ -309,10 +309,6 @@ void processClientRequest(int clientFd)
     struct stat fileInfo;
     stat(requestHttpheader.file, &fileInfo);
 
-    // reading the file content and get the file sizes
-    char *fileContent = calloc(2, sizeof(char));
-    fileContent = readFileContent(requestHttpheader.file, fileContent);
-
     // last modified timestamp
     char *lastModTime = calloc(50, sizeof(char));
     struct tm *info = gmtime(&fileInfo.st_mtime);
@@ -330,6 +326,18 @@ void processClientRequest(int clientFd)
 
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
+
+    if (isBinaryMimeType(mimeType) == 1)
+    {
+        // send binary data to the client
+        // TODO: implement
+        fprintf(stderr, "Binary file serving currently not implemented!");
+        exit(EXIT_FAILURE);
+    }
+
+    // reading the file content
+    char *fileContent = calloc(2, sizeof(char));
+    fileContent = readFileContent(requestHttpheader.file, fileContent);
 
     // write response
     FILE *cl = fdopen(clientFd, "w");

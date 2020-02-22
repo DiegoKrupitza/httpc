@@ -17,3 +17,11 @@
  * @return char* the mimetype
  */
 char *getMimeTypFromFilename(char *filename);
+
+/**
+ * @brief Checks if a given MimeType is binary or not
+ * 
+ * @param mimeType the MimeType to check
+ * @return int 1 -> binary      \n 0 -> not binary
+ */
+int isBinaryMimeType(char *mimeType);

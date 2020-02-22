@@ -2,6 +2,11 @@
 
 #include "mimeTypeManager.h"
 
+int isBinaryMimeType(char *mimeType)
+{
+    return (strncmp(mimeType, "text/", 5) == 0) ? 0 : 1;
+}
+
 char *getMimeTypFromFilename(char *filename)
 {
     char *mimeType = NULL;

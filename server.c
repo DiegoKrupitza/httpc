@@ -305,7 +305,6 @@ void processClientRequest(int clientFd)
 
     // reading the file content and get the file sizes
     char *fileContent = calloc(2, sizeof(char));
-    int *fileSize = (int *)malloc(sizeof(int));
     fileContent = readFileContent(requestHttpheader.file, fileContent);
 
     // last modified timestamp
@@ -313,14 +312,15 @@ void processClientRequest(int clientFd)
     struct tm *info = gmtime(&fileInfo.st_mtime);
     strftime(lastModTime, 50, "%c GMT", info);
 
+    // getting the mimetype
     char *mimeType = getMimeTypFromFilename(requestHttpheader.file);
-    printf("%s\n\n", mimeType);
 
     // generating the resposne header
     httpheader_t responseHttpheader = getDefaultResponseHeader();
     responseHttpheader.statuscode = 200;
     responseHttpheader.content_length = fileInfo.st_size;
     responseHttpheader.last_modified = lastModTime;
+    responseHttpheader.content_type = mimeType;
 
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
@@ -342,7 +342,6 @@ void processClientRequest(int clientFd)
 
     free(httpHeaderAsString);
     free(requestContent);
-    free(fileSize);
     free(fileContent);
     fflush(stdout);
 }

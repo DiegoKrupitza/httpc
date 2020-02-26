@@ -8,7 +8,6 @@
 #include "permissions.h"
 #include "mimeTypeManager.h"
 
-
 #endif
 
 void sendFileNotExistsMessage(int clientFd)

@@ -21,6 +21,7 @@
 #include "httpStatusCodes.h"
 #include "permissions.h"
 #include "mimeTypeManager.h"
+#include "messageHandler.h"
 
 #endif
 
@@ -233,30 +234,6 @@ char *readClientReqest(int clientFd, char *requestContent)
     return requestContent;
 }
 
-char *readFileContent(char *filename, char *fileContent)
-{
-    //size_t fileLength = -1;
-    FILE *fp = fopen(filename, "r");
-
-    char *line = NULL;
-    size_t linecap = 0;
-    ssize_t linelen;
-    while ((linelen = getline(&line, &linecap, fp)) > 0)
-    {
-        int newLenght = linelen + strlen(fileContent) + 2;
-        fileContent = realloc(fileContent, newLenght);
-        strcat(fileContent, line);
-    }
-
-    if (fclose(fp) < 0)
-    {
-        fprintf(stderr, "Cannot close the file (%s) the client requested!", filename);
-        exit(EXIT_FAILURE);
-    }
-
-    return fileContent;
-}
-
 void processClientRequest(int clientFd)
 {
     // duplicate fd so its safe to close
@@ -324,39 +301,11 @@ void processClientRequest(int clientFd)
     responseHttpheader.last_modified = lastModTime;
     responseHttpheader.content_type = mimeType;
 
-    char *httpHeaderAsString = calloc(2, sizeof(char));
-    httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
+    // sending the content to the client
+    sentFileContent(responseHttpheader, requestHttpheader.file, clientFd);
 
-    if (isBinaryMimeType(mimeType) == 1)
-    {
-        // send binary data to the client
-        // TODO: implement
-        fprintf(stderr, "Binary file serving currently not implemented!");
-        exit(EXIT_FAILURE);
-    }
-
-    // reading the file content
-    char *fileContent = calloc(2, sizeof(char));
-    fileContent = readFileContent(requestHttpheader.file, fileContent);
-
-    // write response
-    FILE *cl = fdopen(clientFd, "w");
-    fputs(httpHeaderAsString, cl);
-    fputs(fileContent, cl);
-    if (fflush(cl) != 0)
-    {
-        //error
-        fprintf(stderr, "Error flushing to client!\n");
-    }
-    if (fclose(cl) != 0)
-    {
-        //error
-        fprintf(stderr, "Error closing connection to client!\n");
-    }
-
-    free(httpHeaderAsString);
     free(requestContent);
-    free(fileContent);
+    free(lastModTime);
     fflush(stdout);
 }
 

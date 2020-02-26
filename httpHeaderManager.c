@@ -20,6 +20,25 @@ httpheader_t getDefaultResponseHeader()
     return responseHttpheader;
 }
 
+/**
+ * @brief Gets the number of digits a number has
+ * 
+ * @param n the number to find out how many digits
+ * @return int the number of digits
+ * @author Diego Krupitza
+ * @date 30.1.2019
+ */
+int numberOfDigits(int n)
+{
+    int count = 0;
+    while (n != 0)
+    {
+        n /= 10; // n = n/10
+        ++count;
+    }
+    return count;
+}
+
 char *getCurrentGMTTime()
 {
     time_t rawtime;
@@ -50,7 +69,7 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
                  sizeof(header->connection) +
                  sizeof(header->user_agent) +
                  sizeof(header->accept_encoding) +
-                 sizeof(header->content_length) +
+                 numberOfDigits(header->content_length) +
                  sizeof(header->content_type) +
                  sizeof(header->date) +
                  sizeof(header->last_modified) +
@@ -58,7 +77,7 @@ char *responseheaderToString(httpheader_t *header, char *headerString)
                  sizeof(statuscode) +
                  sizeof(statusText) +
                  sizeof(gmtTime) +
-                 10 + // for "GMT"
+                 104 + // for "GMT"
                  2;
 
     headerString = realloc(headerString, length);

@@ -7,6 +7,7 @@
 #include "httpStatusCodes.h"
 #include "permissions.h"
 #include "mimeTypeManager.h"
+#include "messageHandler.h"
 
 #endif
 
@@ -15,20 +16,9 @@ void sendFileNotExistsMessage(int clientFd)
     httpheader_t responseHttpheader = {.statuscode = 404, .httpVersion = "HTTP/1.1", .server = "httpc"};
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
+    
+    sendTextWithHeader(FILE_NOT_FOUND_MESSAGE,httpHeaderAsString, clientFd);
 
-    FILE *cl = fdopen(clientFd, "w");
-    fputs(httpHeaderAsString, cl);
-    fputs(FILE_NOT_FOUND_MESSAGE, cl);
-    if (fflush(cl) != 0)
-    {
-        //error
-        fprintf(stderr, "Error flushing to client!\n");
-    }
-    if (fclose(cl) != 0)
-    {
-        //error
-        fprintf(stderr, "Error closing connection to client!\n");
-    }
     free(httpHeaderAsString);
 }
 
@@ -38,19 +28,8 @@ void sendNoPermissionMessage(int clientFd)
     char *httpHeaderAsString = calloc(2, sizeof(char));
     httpHeaderAsString = responseheaderToString(&responseHttpheader, httpHeaderAsString);
 
-    FILE *cl = fdopen(clientFd, "w");
-    fputs(httpHeaderAsString, cl);
-    fputs(FILE_NO_PERMISSION_MESSAGE, cl);
-    if (fflush(cl) != 0)
-    {
-        //error
-        fprintf(stderr, "Error flushing to client!\n");
-    }
-    if (fclose(cl) != 0)
-    {
-        //error
-        fprintf(stderr, "Error closing connection to client!\n");
-    }
+    sendTextWithHeader(FILE_NO_PERMISSION_MESSAGE,httpHeaderAsString, clientFd);
+
     free(httpHeaderAsString);
 }
 

@@ -11,6 +11,7 @@
 #include "httpStatusCodes.h"
 #include "permissions.h"
 #include "mimeTypeManager.h"
+#include "messageHandler.h"
 
 #endif
 

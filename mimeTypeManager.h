@@ -4,6 +4,7 @@
 #include "httpHeaderManager.h"
 #include "httpStatusCodes.h"
 #include "permissions.h"
+#include "messageHandler.h"
 
 #endif
 
